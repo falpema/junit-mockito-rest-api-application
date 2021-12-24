@@ -29,6 +29,11 @@ import com.rest.app.Book;
 import com.rest.app.BookController;
 import com.rest.app.BookRepository;
 
+/**
+ * class to do junit test and  Mockito
+ * @author fabian.peñaloza
+ *
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class BookControllerTest {
      private MockMvc mockMvc;
@@ -87,13 +92,12 @@ public class BookControllerTest {
      @Test
      public void createRecord_success() throws Exception {
     	 Book record = new Book();
-    	 record.setBookId(4L);
+    	 record.setBookId(5L);
     	 record.setName("Introduction to C");
     	 record.setRating(5);
     	 record.setSummary("The name but longer");
     	 
     	 Mockito.when(bookRepository.save(record)).thenReturn(record);
-    	 
     	 String content = objectWriter.writeValueAsString(record);
     	 
     	 MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post("/book")
@@ -107,4 +111,29 @@ public class BookControllerTest {
     	 .andExpect(jsonPath("$.name", is("Introduction to C"))) ;
      }
      
+     @Test
+     public void updateBookRecord_success() throws Exception  {
+    	 Book updatedRecord = new  Book();
+    	 updatedRecord.setBookId(1L);
+    	 updatedRecord.setName("Updated Book name");
+    	 updatedRecord.setSummary("summary updated");
+    	 updatedRecord.setRating(1);
+    	 
+    	 
+    	 Mockito.when(bookRepository.findById(RECORD_1.getBookId())).thenReturn(java.util.Optional.ofNullable(updatedRecord));
+    	 Mockito.when(bookRepository.save(updatedRecord)).thenReturn(updatedRecord);
+    	 
+    	 String updateContent = objectWriter.writeValueAsString(updatedRecord);
+    	 MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/book")
+    			 .contentType(MediaType.APPLICATION_JSON)
+    			 .accept(MediaType.APPLICATION_JSON)
+    			 .content(updateContent);
+    	 
+    	 mockMvc.perform(mockRequest)
+    	 	.andExpect(status().isOk())
+    	 	.andExpect(jsonPath("$", notNullValue()))
+    	 	.andExpect(jsonPath("$.name", is("Updated Book name")))
+    	 ;
+    	 
+     }
 }

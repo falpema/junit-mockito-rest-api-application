@@ -39,20 +39,21 @@ public class BookController {
 	}
 	
 	@PutMapping
-	public Book updateBookRecord(@RequestBody @Valid Book bookRecord) throws NotFoundException {
+	public Book updateBookRecord(@RequestBody @Valid Book bookRecord) throws NotFoundException, javassist.NotFoundException {
 		if (bookRecord == null || bookRecord.getBookId() == null) {
 			throw new NotFoundException();
 		}
 		Optional<Book> optionalBook = bookRepository.findById(bookRecord.getBookId());
 
 		if (!optionalBook.isPresent()) {
-			throw new NotFoundException();
+			throw new javassist.NotFoundException("BOOK with id "+bookRecord.getBookId() + "does not exist." );
 		}
 
 		Book existingBookRecord = optionalBook.get();
 		existingBookRecord.setName(bookRecord.getName());
 		existingBookRecord.setRating(bookRecord.getRating());
 		existingBookRecord.setSummary(bookRecord.getSummary());
+		
 		return bookRepository.save(existingBookRecord);
 	}
 	
